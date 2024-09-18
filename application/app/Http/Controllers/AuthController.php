@@ -54,7 +54,7 @@ class AuthController extends Controller
         return response()->json([
             "status" => false,
             "message" => "Invalid credentials",
-        ]);
+        ], 401);
     }
 
     public function profile() {
