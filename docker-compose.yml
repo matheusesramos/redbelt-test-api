@@ -1,0 +1,61 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
+    container_name: redbelt-test-api
+    restart: always
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+      - ./application:/var/www/application
+    # environment:
+    #   - COMPOSER_HOME=/composer
+    #   - COMPOSER_ALLOW_SUPERUSER=1
+    #   - APP_ENV=local
+    #   - APP_KEY=base64:29jxOeG8/nBxlEYmoXyzv10IWJqBDGUNuJ8Ag2+cWFc=
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./application:/var/www/application
+      - ./docker/nginx:/etc/nginx/conf.d
+
+  redis:
+    build:
+      context: ./
+      dockerfile: docker/redis/Dockerfile
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+
+  db:
+    build:
+      context: ./
+      dockerfile: docker/db/Dockerfile
+    container_name: db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=redbelt_api
+      - MYSQL_USER=redbelt
+      - MYSQL_PASSWORD=123456redbelt
+      - MYSQL_ROOT_PASSWORD=123456redbelt
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  redis:
+  db:
